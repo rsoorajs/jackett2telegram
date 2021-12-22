@@ -1,0 +1,27 @@
+name: Deploy Container
+
+env:
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+  USERNAME: danimart1991
+  REPOSITORY_NAME: jackett2telegram
+
+on:
+  workflow_dispatch:
+  on:
+    release:
+      types: [published]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Install Docker
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Docker
+        run: docker login --username=$USERNAME --password=$DOCKER_HUB_PASSWORD
+      - name: Build Image
+        run: docker build -t $USERNAME/$REPOSITORY_NAME:$IMAGE_TAG .
+      - name: Push Image
+        run: docker push $USERNAME/$REPOSITORY_NAME:$IMAGE_TAG
